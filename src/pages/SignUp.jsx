@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
+import toast,{Toaster} from 'react-hot-toast';
 import loginBg from '../assets/login_background.jpg'; 
-import { User,Lock, EyeClosed, Eye, EyeOff } from 'lucide-react';
-import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
+import { Mail, User, Lock, Eye, EyeOff } from 'lucide-react';
 
-function Login() {
+
+function SignUp() {
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
+  const [userName,setUserName]=useState('');
   const [isVisible,setIsVisible]=useState(false);
   const navigate=useNavigate();
-
   localStorage.clear();
 
   const updateEmail=(event)=>{
@@ -18,10 +19,12 @@ function Login() {
   const updatePassword=(event)=>{
     setPassword(event.target.value);
   }
-  const validateCredential=async()=>{
-    const user={email,password};
-    
-    const url='http://localhost:5000/api/auth/login';
+  const updateUserName=(event)=>{
+    setUserName(event.target.value);
+  }
+  const postCredential=async()=>{
+    const user={email,password,name:userName};
+    const url='http://localhost:5000/api/auth/register';
     const header={
       method:"POST",
       headers:{
@@ -30,7 +33,7 @@ function Login() {
       body:JSON.stringify(user)
     }
     try {
-      const response=await fetch(url,header);
+      const response=await fetch(url,header); 
       if(!response.ok){
         throw new Error(response.statusText);
       }
@@ -46,18 +49,27 @@ function Login() {
   }
   return (
     <div className="w-screen h-screen flex flex-row">
+      <Toaster/>
       <div className='w-full h-full flex flex-col justify-center items-center gap-3'>
-        <h1 className='text-3xl font-bold'>Welcome back</h1>
+        <h1 className='text-3xl font-bold'>Welcome To MyWallet</h1>
         <h1 className='text-lg text-gray-500'>Please Enter Valid Credentials</h1>
         <div className='w-full max-w-sm flex flex-col gap-4'>
           <div 
           className='flex flex-row items-center bg-gray-50 rounded-md px-3 py-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition duration-200'>
-            <User size={25} />
+            <Mail size={25} />
             <input 
             value={email}
             type='email' 
             onChange={updateEmail}
             className='w-100 rounded-sm bg-gray-50 px-2 focus:outline-none' placeholder='Enter your email'/>
+          </div>
+          <div className='flex flex-row items-center bg-gray-50 rounded-md px-3 py-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition duration-200' >
+            <User size={25} />
+            <input 
+            value={userName}
+            type='text' 
+            onChange={updateUserName}
+            className='w-100 rounded-sm bg-gray-50 px-2 focus:outline-none' placeholder='Enter your username'/>
           </div>
           {
             isVisible ? (
@@ -92,16 +104,9 @@ function Login() {
                 </div>
               )
           }
-          <div className='w-[380px] flex flex-row justify-between items-center'>
-            <div className='flex flex-row justify-center items-center gap-1'>
-              <input type='checkbox' className='w-4 h-4'/>
-              <p>Remember Me</p>
-            </div>
-            <p className='text-violet-600 cursor-pointer'><a>Forgot password?</a></p>
-          </div>
           <button 
-          onClick={validateCredential}
-          className='w-96 h-10 bg-gradient-to-r from-violet-500 to-violet-700 text-white rounded-sm cursor-pointer'>Login</button>
+          onClick={postCredential}
+          className='w-96 h-10 bg-gradient-to-r from-violet-500 to-violet-700 text-white rounded-sm cursor-pointer'>Sign Up</button>
           <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
@@ -110,7 +115,7 @@ function Login() {
                 <span className="px-2 bg-white text-gray-500">Or continue with</span>
               </div>
           </div>
-          <p className='text-md'>Don't Have an account <Link to="/signup" className='text-violet-500'>Sign Up?</Link></p>
+          <p className='text-md'>Already Have an account <Link className='cursor-pointer text-violet-500 ' to="/login"> Login </Link></p>
         </div>
       </div>
       <div 
@@ -118,7 +123,7 @@ function Login() {
         style={{ backgroundImage: `url(${loginBg})` }}
       ></div>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default SignUp

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SideBar from '../components/SideBar';
-import { TrendingUp, TrendingDown, ArrowLeftRight, Calendar, PieChart, DollarSign, Wallet } from 'lucide-react';
+import { TrendingUp, TrendingDown, ArrowLeftRight, Calendar, PieChart, DollarSign, Wallet, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
@@ -17,11 +17,13 @@ const Dashboard = () => {
   useEffect(() => {
     fetchDashboardData();
   }, [selectedMonth, selectedYear]);
-
+  const logout=()=>{
+    localStorage.clear();
+    window.location.href="/"
+  }
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Fetch Accounts
       const accountsUrl = `http://localhost:5000/api/user/${user.id}/accounts`;
       const accountsOptions = {
         method: "GET",
@@ -35,8 +37,6 @@ const Dashboard = () => {
       const accountsData = await accountsReq.json();
       const accountList = accountsData.accounts || accountsData;
       setAccounts(accountList);
-
-      // Fetch Transactions for first account
       if (accountList.length > 0) {
         const firstAccountId = accountList[0]._id;
         const transactionsUrl = `http://localhost:5000/api/transactions/${firstAccountId}`;
@@ -53,8 +53,6 @@ const Dashboard = () => {
           setTransactions(transactionsData || []);
         }
       }
-
-      // Fetch Budgets
       const budgetsUrl = `http://localhost:5000/api/budgets/user/${user.id}`;
       const budgetsOptions = {
         method: "GET",
@@ -67,8 +65,6 @@ const Dashboard = () => {
       if (budgetsReq.ok) {
         const budgetsData = await budgetsReq.json();
         const budgetList = budgetsData.budgets || [];
-        
-        // Calculate spent amount for each budget
         const budgetsWithSpent = budgetList.map(budget => {
           const spent = transactions
             .filter(t => t.type === 'expense' && t.category === budget.category)
@@ -144,6 +140,15 @@ const Dashboard = () => {
               ))}
             </select>
           </div>
+          <button>
+            <span
+              onClick={logout}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 active:scale-95 transition-all duration-200 text-white shadow-md"
+            >
+              <LogOut size={22} />
+              <span className="font-medium">Logout</span>
+            </span>
+          </button>
         </div>
 
         <div className="w-full h-full overflow-y-auto p-6">
@@ -218,8 +223,6 @@ const Dashboard = () => {
                   )}
                 </div>
               </div>
-
-              {/* Budget Overview - 1 column */}
               <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-md">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -258,8 +261,6 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-
-            {/* Recent Transactions */}
             <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-md">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
